@@ -1,3 +1,4 @@
+numpy
 ase
 basis-set-exchange
 nglview =3.0.6
