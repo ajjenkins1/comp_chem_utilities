@@ -1,6 +1,6 @@
 numpy
 ase
 basis-set-exchange
-nglview ==3.0.6
-jupyterlab_widgets ==1.1.2
+nglview
+jupyterlab_widgets
 jinja2
