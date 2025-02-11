@@ -3,7 +3,42 @@ from ase.data import atomic_numbers, chemical_symbols
 
 def calculate_nbasis(elements,basis_set):
     # Count the number of basis functions
-    nbasis = sum(len(basis_set['elements'][str(el)]['electron_shells']) for el in elements)
+    nbasis = 0
+
+    for el in elements:
+        for shell in basis_set['elements'][str(el)]['electron_shells']:
+            angular_momentum = shell['angular_momentum']
+
+            # cartesian?
+            if( shell['function_type'] ) == 'gto_cartesian':
+                cart = True
+            else:
+                cart = False
+
+            # Convert the list to a NumPy array
+            coefficients_array = np.array(shell['coefficients'])
+            # Get the dimensions of the array
+            coeff_dim = coefficients_array.shape
+
+            # SP basis: len(angular_momentum) == coeff_dim[0]
+            # cc-etc: often all funcs of same ang mom packaged together 
+            #  with multiple coeff arrays,
+            #  also can be same s exponents but N sets of different coeffs, so count this N times.
+            if coeff_dim[0] > len(angular_momentum):
+                # cc etc basis
+                fac = float(coeff_dim[0])
+            else:
+                # 'normal' or SP (we loop over am below so no *fac)
+                fac = 1.0
+
+            # loop over angular mom: SP will have [0, 1] array
+            for am in angular_momentum:
+                if(cart):
+                    # l*(l+1)/2 + (l+1) cartesian
+                    nbasis += ( am*(am+1)/2 + (am+1) )*fac
+                else:
+                    # 2*l+1 spherical
+                    nbasis += ( (2 * am + 1) )*fac
     return nbasis
 
 def is_integer(s):
